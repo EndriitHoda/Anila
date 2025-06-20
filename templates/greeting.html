@@ -1,89 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Greeting</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f8f9fa, #e0e7ff);
-            height: 100vh;
-            margin: 0;
-            color: #3b3b98;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-        .card {
-            background: white;
-            padding: 2em 3em;
-            border-radius: 15px;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-            max-width: 400px;
-            text-align: center;
-            position: relative;
-            transition: all 0.4s ease;
-        }
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 0.5em;
-        }
-        p {
-            font-size: 1.25em;
-            color: #555;
-        }
-        .question {
-            margin-top: 20px;
-        }
-        .btn {
-            padding: 0.5em 1.5em;
-            font-size: 1em;
-            border: none;
-            border-radius: 10px;
-            margin: 0 10px;
-            cursor: pointer;
-        }
-        .yes {
-            background-color: #6c5ce7;
-            color: white;
-        }
-        .no {
-            background-color: #d63031;
-            color: white;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Greeting</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f8f9fa, #e0e7ff);
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      color: #3b3b98;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .card {
+      background: white;
+      padding: 2em 3em;
+      border-radius: 15px;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+    h1 {
+      font-size: 2.5em;
+    }
+    #message {
+      font-size: 1.25em;
+      color: #555;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 2px solid #3b3b98;
+      animation: typing 2s steps(40, end);
+    }
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+    .question {
+      margin-top: 20px;
+    }
+    .btn {
+      padding: 0.5em 1.5em;
+      font-size: 1em;
+      border: none;
+      border-radius: 10px;
+      margin: 0 10px;
+      cursor: pointer;
+    }
+    .yes {
+      background-color: #6c5ce7;
+      color: white;
+    }
+    .no {
+      background-color: #d63031;
+      color: white;
+    }
+    .heart {
+      position: absolute;
+      font-size: 24px;
+      animation: float 2s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes float {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-200px) scale(1.5); }
+    }
+    #countdown {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #6c5ce7;
+      font-size: 1.1em;
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+  </style>
 </head>
 <body>
-    <div class="card" id="card">
-        <h1>Hello Anila!</h1>
-        <p id="message">{{ message }}</p>
 
-        <div class="question" id="question">
-            <p>Do you love me?</p>
-            <button class="btn yes" onclick="sayYes()">Yes</button>
-            <button class="btn no" onclick="moveCard()">No</button>
-        </div>
+  <!-- Background music -->
+  <audio autoplay loop>
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_9c3c6d276b.mp3" type="audio/mpeg">
+    Your browser does not support the audio tag.
+  </audio>
+
+  <!-- Fireworks canvas -->
+  <canvas id="fireworksCanvas"></canvas>
+
+  <div class="card">
+    <h1>Hello Anila!</h1>
+    <p id="message">Anila I Love U ❤️</p>
+
+    <div class="question" id="question">
+      <p>Do you love me?</p>
+      <button class="btn yes" onclick="sayYes()">Yes</button>
+      <button class="btn no">No</button>
     </div>
+    <div id="countdown">Countdown: <span id="timer">10</span> seconds</div>
+  </div>
 
-    <script>
-        function sayYes() {
-            document.getElementById('message').innerText = "I love you too ❤️";
-            document.getElementById('question').style.display = 'none';
-        }
+  <script>
+    // Floating hearts
+    function createHearts() {
+      for (let i = 0; i < 20; i++) {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        heart.style.left = Math.random() * window.innerWidth + 'px';
+        heart.style.top = Math.random() * (window.innerHeight - 100) + 'px';
+        heart.innerText = '❤️';
+        document.body.appendChild(heart);
 
-        function moveCard() {
-            const card = document.getElementById('card');
-            const maxX = window.innerWidth - card.offsetWidth;
-            const maxY = window.innerHeight - card.offsetHeight;
+        setTimeout(() => {
+          heart.remove();
+        }, 2000);
+      }
+    }
 
-            const randomX = Math.random() * maxX;
-            const randomY = Math.random() * maxY;
+    // Fireworks
+    const canvas = document.getElementById('fireworksCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-            card.style.position = 'absolute';
-            card.style.left = `${randomX}px`;
-            card.style.top = `${randomY}px`;
-        }
-    </script>
+    function firework(x, y) {
+      const particles = [];
+      for (let i = 0; i < 100; i++) {
+        particles.push({
+          x, y,
+          dx: (Math.random() - 0.5) * 6,
+          dy: (Math.random() - 0.5) * 6,
+          color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+          alpha: 1
+        });
+      }
+
+      function animate() {
+        ctx.fillStyle = "rgba(0,0,0,0.1)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+          ctx.fill();
+          p.x += p.dx;
+          p.y += p.dy;
+          p.alpha -= 0.01;
+        });
+        ctx.globalAlpha = 1;
+        if (particles.some(p => p.alpha > 0)) requestAnimationFrame(animate);
+      }
+      animate();
+    }
+
+    // Say Yes!
+    function sayYes() {
+      document.getElementById('message').innerText = "I love you too ❤️";
+      document.getElementById('question').style.display = 'none';
+      createHearts();
+      firework(window.innerWidth / 2, window.innerHeight / 2);
+    }
+
+    // Countdown timer
+    let timeLeft = 10;
+    const timerEl = document.getElementById('timer');
+    setInterval(() => {
+      timeLeft--;
+      if (timeLeft < 0) timeLeft = 10;
+      timerEl.textContent = timeLeft;
+    }, 1000);
+
+    // Resize canvas with window
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
 </body>
 </html>
